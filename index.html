@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Intelligence Dashboard</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+</head>
+<body>
+
+<div class="background"></div>
+
+<header class="topbar">
+    <div class="logo">
+        Roblox Intelligence
+    </div>
+
+    <div class="subtitle">
+        Badge Activity Analyzer
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="search-card glass">
+        <h1>Analyze Roblox User</h1>
+
+        <div class="search-row">
+            <input
+                id="usernameInput"
+                placeholder="Enter Username..."
+            >
+
+            <button id="analyzeBtn">
+                Analyze
+            </button>
+        </div>
+    </section>
+
+    <section id="loadingSection" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Analyzing Account...</p>
+    </section>
+
+    <section id="dashboard" class="hidden">
+
+        <section class="profile-card glass">
+
+            <div class="avatar-wrap">
+                <img
+                    id="avatar"
+                    src=""
+                    alt=""
+                >
+            </div>
+
+            <div class="profile-info">
+
+                <h2 id="username">
+                    Username
+                </h2>
+
+                <div id="displayName" class="display-name">
+                    Display Name
+                </div>
+
+                <div class="user-meta">
+
+                    <div>
+                        <span class="label">
+                            User ID
+                        </span>
+
+                        <span id="userId">
+                            -
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="label">
+                            Join Date
+                        </span>
+
+                        <span id="joinDate">
+                            -
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="label">
+                            Account Age
+                        </span>
+
+                        <span id="accountAge">
+                            -
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card glass">
+                <div class="stat-title">
+                    Total Badges
+                </div>
+
+                <div id="badgeCount" class="stat-value">
+                    0
+                </div>
+            </div>
+
+            <div class="stat-card glass">
+                <div class="stat-title">
+                    Activity Score
+                </div>
+
+                <div id="activityScore" class="stat-value">
+                    0%
+                </div>
+            </div>
+
+            <div class="stat-card glass">
+                <div class="stat-title">
+                    Badge Velocity
+                </div>
+
+                <div id="badgeVelocity" class="stat-value">
+                    0
+                </div>
+            </div>
+
+            <div class="stat-card glass">
+                <div class="stat-title">
+                    Largest Gap
+                </div>
+
+                <div id="largestGap" class="stat-value">
+                    0 Days
+                </div>
+            </div>
+
+        </section>
+
+        <section class="glass chart-card">
+
+            <div class="section-title">
+                Badge Growth Timeline
+            </div>
+
+            <canvas id="badgeChart"></canvas>
+
+            <button id="exportBtn">
+                Export PNG
+            </button>
+
+        </section>
+
+        <section class="glass">
+
+            <div class="section-title">
+                Activity Timeline
+            </div>
+
+            <div id="timeline">
+
+            </div>
+
+        </section>
+
+        <section class="glass">
+
+            <div class="section-title">
+                Gap Analysis
+            </div>
+
+            <div id="gapContainer">
+
+            </div>
+
+        </section>
+
+        <section class="glass">
+
+            <div class="section-title">
+                Monthly Heatmap
+            </div>
+
+            <div id="heatmap">
+
+            </div>
+
+        </section>
+
+        <section class="glass">
+
+            <div class="section-title">
+                AI Style Analysis
+            </div>
+
+            <div id="analysisBox">
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>
