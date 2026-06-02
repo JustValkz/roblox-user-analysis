@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            color: #666;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        code {
+            background: #333;
+            color: #0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 API Key Test</h1>
+        <p class="subtitle">Test your Roblox Open Cloud API configuration</p>
+
+        <!-- Test 1: Username Lookup -->
+        <div class="test-section">
+            <h2>Test 1: Username Lookup (No API Key)</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                Tests basic Roblox API connectivity
+            </p>
+            <button onclick="testUsernameLookup()">Run Test</button>
+            <div class="loading" id="loading1">
+                <div class="spinner"></div>
+                <span>Testing...</span>
+            </div>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: API Key Authentication -->
+        <div class="test-section">
+            <h2>Test 2: API Key Authentication</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                Tests if your Open Cloud API key is valid
+            </p>
+            <button onclick="testAPIKey()">Run Test</button>
+            <div class="loading" id="loading2">
+                <div class="spinner"></div>
+                <span>Testing...</span>
+            </div>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Badge Fetch -->
+        <div class="test-section">
+            <h2>Test 3: Badge Data Fetch</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                Tests if your API key can fetch badge data (full permissions test)
+            </p>
+            <button onclick="testBadgeFetch()">Run Test</button>
+            <div class="loading" id="loading3">
+                <div class="spinner"></div>
+                <span>Testing...</span>
+            </div>
+            <div id="result3"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import API key from api.js
+        const API_KEY = "qcW0a5Dd+UedqgEcq357y6yVpGJ6mQSTabbvYKU/6DuWmj6fZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaGRXUWlPaUpTYjJKc2IzaEpiblJsY201aGJDSXNJbWx6Y3lJNklrTnNiM1ZrUVhWMGFHVnVkR2xqWVhScGIyNVRaWEoyYVdObElpd2lZbUZ6WlVGd2FVdGxlU0k2SW5GalZ6QmhOVVJrSzFWbFpIRm5SV054TXpVM2VUWjVWbkJIU2padFVWTlVZV0ppZGxsTFZTODJSSFZYYldvMlppSXNJbTkzYm1WeVNXUWlPaUkyTVRVNU1UazVNVEU1SWl3aVpYaHdJam94Tnpnd05ETTROVE15TENKcFlYUWlPakUzT0RBME16UTVNeklzSW01aVppSTZNVGM0TURRek5Ea3pNbjAuWHdiM2h0RzRNS2M4dkpia0tDVTk0aV9WWTRld1JVWUpoT0RRenNtRk0xY3hILUtfOHRtdWt6QVVyeTVVWWZKTWY2a2pmVklXOFNxSXNub0pIZzBrc1h5RVItaXozd082SDY2UFFSS2VDME5ZSzdqSm90aWpxeGRZb00xcF90cXpSVXVWelZtNkxwb1dWTmVuenFfN2dCampic0d2anM4YWN0SGxxcHdGY1lleC1WVUhsU1RTLUZITmUxdktpU0E5aTEwdXlpYWpDeEhZSnVYQV9GazVKcWdqSGo1M1FnaVpnX2Z6NTlyV1c4bWxHOFVmcEN3T1Mwak5LaUN4OWJocENvbW9ZWmVJNHVDcTRROURHWWlXWjVTZ3Zja2lpSE9xV1piai04UFpJUlZFeVgweUlLWWVZaWlxbldvUE5mY2diUGJtT051bG5VX1ZqaGtrTjFKcFBB";
+        const OPEN_CLOUD_BASE = "https://apis.roblox.com/cloud/v2";
+        const ROBLOX_USERS_API = "https://users.roblox.com/v1";
+
+        window.testUsernameLookup = async function() {
+            const loading = document.getElementById('loading1');
+            const result = document.getElementById('result1');
+            const btn = event.target;
+
+            loading.classList.add('active');
+            result.innerHTML = '';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        usernames: ["Builderman"]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.data && data.data.length > 0) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ <strong>SUCCESS!</strong>
+
+Basic API connectivity is working.
+
+User found: ${data.data[0].name}
+User ID: ${data.data[0].id}
+Display Name: ${data.data[0].displayName}
+
+Status: ${response.status}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>FAILED</strong>
+
+Status: ${response.status}
+Response: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>ERROR</strong>
+
+${err.message}
+
+This might be a network issue or CORS problem.
+Try running on a local web server.`;
+            }
+
+            loading.classList.remove('active');
+            btn.disabled = false;
+        };
+
+        window.testAPIKey = async function() {
+            const loading = document.getElementById('loading2');
+            const result = document.getElementById('result2');
+            const btn = event.target;
+
+            loading.classList.add('active');
+            result.innerHTML = '';
+            btn.disabled = true;
+
+            // First check if key is set
+            if (API_KEY === "PUT_YOUR_NEW_API_KEY_HERE" || !API_KEY) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>NO API KEY SET</strong>
+
+API_KEY is not configured in api.js
+Please set your Roblox Open Cloud API key.`;
+                loading.classList.remove('active');
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                // Try a simple inventory request with a known user
+                const response = await fetch(
+                    `${OPEN_CLOUD_BASE}/users/1/inventory-items?filter=badges=true&maxPageSize=1`,
+                    {
+                        headers: {
+                            "x-api-key": API_KEY,
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    data = text;
+                }
+
+                if (response.status === 200) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ <strong>SUCCESS!</strong>
+
+Your API key is valid and working!
+
+Status: ${response.status}
+Response: API key authenticated successfully`;
+                } else if (response.status === 401) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>UNAUTHORIZED (401)</strong>
+
+Your API key is invalid, expired, or has wrong permissions.
+
+Possible causes:
+• Invalid API key
+• Expired API key  
+• Wrong permissions configured
+• IP restriction mismatch
+
+Go to: https://create.roblox.com/credentials
+Check your API key settings.`;
+                } else if (response.status === 403) {
+                    result.className = 'result info';
+                    result.innerHTML = `⚠️ <strong>FORBIDDEN (403)</strong>
+
+API key is valid, but lacks permissions or user inventory is private.
+
+This is actually GOOD - your key authenticates!
+
+Status: ${response.status}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>UNEXPECTED RESPONSE</strong>
+
+Status: ${response.status}
+Response: ${JSON.stringify(data, null, 2).substring(0, 500)}`;
+                }
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>ERROR</strong>
+
+${err.message}
+
+This might indicate:
+• Network connectivity issue
+• CORS problem (try local server)
+• Firewall blocking request`;
+            }
+
+            loading.classList.remove('active');
+            btn.disabled = false;
+        };
+
+        window.testBadgeFetch = async function() {
+            const loading = document.getElementById('loading3');
+            const result = document.getElementById('result3');
+            const btn = event.target;
+
+            loading.classList.add('active');
+            result.innerHTML = '';
+            btn.disabled = true;
+
+            try {
+                // First get a real user ID
+                const userResponse = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        usernames: ["Builderman"]
+                    })
+                });
+
+                const userData = await userResponse.json();
+                const userId = userData.data[0].id;
+
+                // Now try to fetch badges
+                const badgeResponse = await fetch(
+                    `${OPEN_CLOUD_BASE}/users/${userId}/inventory-items?filter=badges=true&maxPageSize=10`,
+                    {
+                        headers: {
+                            "x-api-key": API_KEY,
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                const text = await badgeResponse.text();
+                let badgeData;
+                try {
+                    badgeData = JSON.parse(text);
+                } catch {
+                    badgeData = text;
+                }
+
+                if (badgeResponse.status === 200) {
+                    const badgeCount = badgeData.inventoryItems ? badgeData.inventoryItems.length : 0;
+                    result.className = 'result success';
+                    result.innerHTML = `✅ <strong>FULL SUCCESS!</strong>
+
+Your API key has ALL required permissions!
+
+Status: ${badgeResponse.status}
+Badges fetched: ${badgeCount}
+User: Builderman (${userId})
+
+🎉 Everything is working perfectly!
+You can now use the main dashboard.`;
+                } else if (badgeResponse.status === 403) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>PERMISSION DENIED (403)</strong>
+
+Your API key is valid but lacks inventory read permissions.
+
+Required permission: <code>user.inventory-items:read</code>
+
+Fix this:
+1. Go to: https://create.roblox.com/credentials
+2. Find your API key
+3. Edit permissions
+4. Enable "Read User Inventory Items"
+5. Save changes
+
+OR the user's inventory is private (try different user).`;
+                } else if (badgeResponse.status === 401) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>UNAUTHORIZED (401)</strong>
+
+API key authentication failed.
+
+Status: ${badgeResponse.status}
+Response: ${JSON.stringify(badgeData, null, 2).substring(0, 300)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>UNEXPECTED ERROR</strong>
+
+Status: ${badgeResponse.status}
+Response: ${JSON.stringify(badgeData, null, 2).substring(0, 500)}`;
+                }
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>ERROR</strong>
+
+${err.message}
+
+Check browser console (F12) for more details.`;
+            }
+
+            loading.classList.remove('active');
+            btn.disabled = false;
+        };
+    </script>
+</body>
+</html>
